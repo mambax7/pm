@@ -16,59 +16,63 @@
  * @author              Jan Pedersen
  * @author              Taiwen Jiang <phppp@users.sourceforge.net>
  */
+
+use Xmf\Request;
+
 include_once __DIR__ . '/admin_header.php';
 xoops_cp_header();
 
-$indexAdmin = new ModuleAdmin();
-echo $indexAdmin->addNavigation(basename(__FILE__));
+echo $adminObject->displayNavigation(basename(__FILE__));
 
-$op         = isset($_REQUEST['op']) ? $_REQUEST['op'] : 'form';
-$pm_handler = xoops_getModuleHandler('message');
+$op = Request::hasVar('op', 'POST') ? Request::getCmd('op', 'POST') : 'form';
+/** @var PmMessageHandler $pmHandler */
+$pmHandler = xoops_getModuleHandler('message');
 
 switch ($op) {
     default:
     case 'form':
-        $form = $pm_handler->getPruneForm();
+        $form = $pmHandler->getPruneForm();
         $form->display();
         break;
 
     case 'prune':
         $criteria = new CriteriaCompo();
-        if ($_REQUEST['after']['date'] && $_REQUEST['after']['date'] !== 'YYYY/MM/DD') {
-            $criteria->add(new Criteria('msg_time', strtotime($_REQUEST['after']['date']) + (int)$_REQUEST['after']['time'], '>'));
+        if (Request::hasVar(['after']['date']) &&  'YYYY/MM/DD' !== Request::getString(['after']['date'])) {
+            $criteria->add(new Criteria('msg_time', strtotime(Request::getString(['after']['date'])) + Request::getInt(['after']['time']), '>'));
         }
-        if ($_REQUEST['before']['date'] && $_REQUEST['before']['date'] !== 'YYYY/MM/DD') {
-            $criteria->add(new Criteria('msg_time', strtotime($_REQUEST['before']['date']) + (int)$_REQUEST['before']['time'], '<'));
+        if (Request::hasVar(['before']['date']) && 'YYYY/MM/DD' !== Request::getString(['before']['date'])) {
+            $criteria->add(new Criteria('msg_time', strtotime(Request::getString(['before']['date'])) + Request::getInt(['before']['time']), '<'));
         }
-        if (isset($_REQUEST['onlyread']) && $_REQUEST['onlyread'] == 1) {
+        if (1 == Request::getInt('onlyread', 0)) {
             $criteria->add(new Criteria('read_msg', 1));
         }
-        if (!isset($_REQUEST['includesave']) || $_REQUEST['includesave'] == 0) {
+        if (0 == Request::getInt('includesave', 0)) {
             $savecriteria = new CriteriaCompo(new Criteria('to_save', 0));
             $savecriteria->add(new Criteria('from_save', 0));
             $criteria->add($savecriteria);
         }
-        if (isset($_REQUEST['notifyusers']) && $_REQUEST['notifyusers'] == 1) {
+        if (1 == Request::getInt('notifyusers', 0)) {
+            $uids = array();
             $notifycriteria = $criteria;
             $notifycriteria->add(new Criteria('to_delete', 0));
             $notifycriteria->setGroupBy('to_userid');
             // Get array of uid => number of deleted messages
-            $uids = $pm_handler->getCount($notifycriteria);
+            $uids = $pmHandler->getCount($notifycriteria);
         }
-        $deletedrows = $pm_handler->deleteAll($criteria);
+        $deletedrows = $pmHandler->deleteAll($criteria);
         if ($deletedrows === false) {
             redirect_header('prune.php', 2, _PM_AM_ERRORWHILEPRUNING);
         }
-        if (isset($_REQUEST['notifyusers']) && $_REQUEST['notifyusers'] == 1) {
+        if (1 == Request::getInt('notifyusers', 0)) {
             $errors = false;
             foreach ($uids as $uid => $messagecount) {
-                $pm = $pm_handler->create();
+                $pm = $pmHandler->create();
                 $pm->setVar('subject', $GLOBALS['xoopsModuleConfig']['prunesubject']);
                 $pm->setVar('msg_text', str_replace('{PM_COUNT}', $messagecount, $GLOBALS['xoopsModuleConfig']['prunemessage']));
                 $pm->setVar('to_userid', $uid);
                 $pm->setVar('from_userid', $GLOBALS['xoopsUser']->getVar('uid'));
                 $pm->setVar('msg_time', time());
-                if (!$pm_handler->insert($pm)) {
+                if (!$pmHandler->insert($pm)) {
                     $errors     = true;
                     $errormsg[] = $pm->getHtmlErrors();
                 }

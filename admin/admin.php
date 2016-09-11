@@ -17,12 +17,11 @@
  */
 
 include_once __DIR__ . '/admin_header.php';
+// Display Admin header
 xoops_cp_header();
 
-$indexAdmin = new ModuleAdmin();
-
-echo $indexAdmin->addNavigation(basename(__FILE__));
-echo $indexAdmin->renderIndex();
+echo $adminObject->displayNavigation(basename(__FILE__));
+echo $adminObject->renderIndex();
 
 include_once __DIR__ . '/admin_footer.php';
 //xoops_cp_footer();

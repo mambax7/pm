@@ -17,11 +17,6 @@
  * @author              Taiwen Jiang <phppp@users.sourceforge.net>
  */
 
-/**
- * This is a temporary solution for merging XOOPS 2.0 and 2.2 series
- * A thorough solution will be available in XOOPS 3.0
- *
- */
 
 $modversion                   = array();
 $modversion['name']           = _PM_MI_NAME;
