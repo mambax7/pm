@@ -27,6 +27,7 @@ $moduleDirName         = basename(dirname(__DIR__));
 /** @var XoopsModuleHandler $moduleHandler */
 $moduleHandler  = xoops_getHandler('module');
 $module          = $moduleHandler->getByDirname($moduleDirName);
+$module          = $moduleHandler->getByDirname($moduleDirName);
 $pathModuleAdmin = $module->getInfo('dirmoduleadmin');
 $pathLanguage    = $path . $pathModuleAdmin;
 

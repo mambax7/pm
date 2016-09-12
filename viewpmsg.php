@@ -106,7 +106,7 @@ if ('' != Request::getString('move_messages', '', 'POST') && isset($_POST['msg_i
         }
     }
 }
-if ('' !== (Request::getString('empty_messages', '', 'POST'))) {
+if ('' !== Request::getString('empty_messages', '', 'POST')) {
     if (!$GLOBALS['xoopsSecurity']->check()) {
         $GLOBALS['xoopsTpl']->assign('errormsg', implode('<br>', $GLOBALS['xoopsSecurity']->getErrors()));
     } elseif (empty(Request::getInt('ok', 0))) {
@@ -205,8 +205,8 @@ if (count($pm_arr) > 0) {
             $uids[] = $pm_arr[$i]['from_userid'];
         }
     }
-    $member_handler = xoops_getHandler('member');
-    $senders        = $member_handler->getUserList(new Criteria('uid', '(' . implode(', ', array_unique($uids)) . ')', 'IN'));
+    $memberHandler = xoops_getHandler('member');
+    $senders        = $memberHandler->getUserList(new Criteria('uid', '(' . implode(', ', array_unique($uids)) . ')', 'IN'));
     foreach (array_keys($pm_arr) as $i) {
         $message              = $pm_arr[$i];
         $message['msg_image'] = htmlspecialchars($message['msg_image'], ENT_QUOTES);
