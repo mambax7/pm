@@ -26,6 +26,7 @@ echo $adminObject->displayNavigation(basename(__FILE__));
 
 $op         = Request::getString('op', 'form');
 
+/** @var Xmf\Module\Helper $moduleHelper */
 /** @var PmMessageHandler $pmHandler */
 $pmHandler = $moduleHelper->getHandler('message');
 
