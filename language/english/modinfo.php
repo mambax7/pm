@@ -1,5 +1,5 @@
 <?php
-//
+// 
 // _LANGCODE: en
 // _CHARSET : UTF-8
 // Translator: XOOPS Translation Team
@@ -22,3 +22,21 @@ define('_PM_MI_PERPAGE', 'Messages per page');
 define('_PM_MI_PERPAGE_DESC', '');
 //1.07
 define('_PM_MI_ABOUT', 'About');
+//1.12
+// The name of this module
+define('_MI_PM_NAME', _PM_MI_NAME);
+//Help
+define('_MI_PM_DIRNAME', basename(dirname(dirname(__DIR__))));
+define('_MI_PM_HELP_HEADER', __DIR__.'/help/helpheader.html');
+define('_MI_PM_BACK_2_ADMIN', 'Back to Administration of ');
+define('_MI_PM_OVERVIEW', 'Overview');
+//help multi-page
+define('_MI_PM_DISCLAIMER', 'Disclaimer');
+define('_MI_PM_LICENSE', 'License');
+define('_MI_PM_SUPPORT', 'Support');
+//define('_MI_PM_REQUIREMENTS', 'Requirements');
+//define('_MI_PM_CREDITS', 'Credits');
+//define('_MI_PM_HOWTO', 'How To');
+//define('_MI_PM_UPDATE', 'Update');
+//define('_MI_PM_INSTALL', 'Install');
+//define('_MI_PM_HISTORY', 'History');

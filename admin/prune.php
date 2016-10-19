@@ -24,9 +24,10 @@ xoops_cp_header();
 
 echo $adminObject->displayNavigation(basename(__FILE__));
 
-$op = Request::hasVar('op', 'POST') ? Request::getCmd('op', 'POST') : 'form';
+$op         = Request::getString('op', 'form');
+
 /** @var PmMessageHandler $pmHandler */
-$pmHandler = xoops_getModuleHandler('message');
+$pmHandler = $moduleHelper->getHandler('message');
 
 switch ($op) {
     default:
@@ -36,6 +37,7 @@ switch ($op) {
         break;
 
     case 'prune':
+        $uids = $errormsg = array();
         $criteria = new CriteriaCompo();
         if (Request::hasVar(['after']['date']) &&  'YYYY/MM/DD' !== Request::getString(['after']['date'])) {
             $criteria->add(new Criteria('msg_time', strtotime(Request::getString(['after']['date'])) + Request::getInt(['after']['time']), '>'));
@@ -84,7 +86,7 @@ switch ($op) {
                 exit();
             }
         }
-        redirect_header('admin.php', 2, sprintf(_PM_AM_MESSAGESPRUNED, $deletedrows));
+        redirect_header('index.php', 2, sprintf(_PM_AM_MESSAGESPRUNED, $deletedrows));
         break;
 }
 include_once __DIR__ . '/admin_footer.php';

@@ -1,6 +1,6 @@
 <?php
 /**
- * Private Messages module
+ * Private message
  *
  * You may not change or alter any portion of this comment or credits
  * of supporting developers from this source code or any supporting source code
@@ -10,17 +10,19 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  *
  * @copyright       (c) 2000-2016 XOOPS Project (www.xoops.org)
- * @license             GNU GPL (http://www.gnu.org/licenses/gpl-2.0.html/)
- * @package             XoopsPartners
- * @since               2.5.0
- * @author              Mage, Mamba
- **/
+ * @license             GNU GPL 2 (http://www.gnu.org/licenses/gpl-2.0.html)
+ * @package             pm
+ * @since               2.3.0
+ * @author              Taiwen Jiang <phppp@users.sourceforge.net>
+ */
 
 include_once __DIR__ . '/admin_header.php';
 xoops_cp_header();
 
+//$indexAdmin = new ModuleAdmin();
+
 echo $adminObject->displayNavigation(basename(__FILE__));
-\Xmf\Module\Admin::setPaypal('6KJ7RW5DR3VTJ');
-echo $adminObject->renderAbout(false);
+echo $adminObject->renderIndex();
 
 include_once __DIR__ . '/admin_footer.php';
+//xoops_cp_footer();

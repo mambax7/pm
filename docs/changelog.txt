@@ -1,3 +1,7 @@
+Version 1.12
+-------------------
+- XMF conversion (mamba)
+
 Version 1.10
 -------------------
 - moved all images, CSS, and JS files to /assets (mamba)

@@ -62,6 +62,10 @@ class PmCorePreload extends XoopsPreloadItem
      */
     public static function eventCoreClassSmartyXoops_pluginsXoinboxcount($args)
     {
-        $args[0] = xoops_getModuleHandler('message', 'pm');
+        $moduleDirName = basename(dirname(__DIR__));
+        /** @var Xmf\Module\Helper $moduleHelper */
+        $moduleHelper  = Xmf\Module\Helper::getHelper($moduleDirName);
+        /** @var PmMessageHandler $pmHandler */
+        $args[0] = $moduleHelper->getHandler('message');
     }
 }

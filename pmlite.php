@@ -1,4 +1,8 @@
 <?php
+
+use Xmf\Language;
+use Xmf\Request;
+
 /**
  * Private message module
  *
@@ -17,16 +21,14 @@
  * @author              Taiwen Jiang <phppp@users.sourceforge.net>
  */
 
-use Xmf\Request;
-
 if (!defined('XOOPS_MAINFILE_INCLUDED')) {
     include_once dirname(dirname(__DIR__)) . '/mainfile.php';
 } else {
     chdir(XOOPS_ROOT_PATH . '/modules/pm/');
-    xoops_loadLanguage('main', 'pm');
+    Language::load('main', 'pm');
 }
 
-
+include_once __DIR__ . '/header.php';
 
 $subject_icons = XoopsLists::getSubjectsList();
 
@@ -59,6 +61,7 @@ if (!is_object($GLOBALS['xoopsUser'])) {
 xoops_header();
 
 $myts = MyTextSanitizer::getInstance();
+$pm_uname = $pm = '';
 if ($op === 'submit') {
     /** @var XoopsMemberHandler $memberHandler */
     $memberHandler = xoops_getHandler('member');
@@ -69,7 +72,8 @@ if ($op === 'submit') {
         echo "[ <a href='javascript:history.go(-1)'>" . _PM_GOBACK . '</a> ]</div>';
     } elseif ($GLOBALS['xoopsSecurity']->check()) {
         /** @var PmMessageHandler $pmHandler */
-        $pmHandler = xoops_getModuleHandler('message', 'pm');
+        /** @var Xmf\Module\Helper $moduleHelper */
+        $pmHandler = $moduleHelper->getHandler('message');
         $pm         = $pmHandler->create();
         $pm->setVar('msg_time', time());
         $msg_image = Request::getCmd('icon', null, 'POST');
@@ -99,7 +103,8 @@ if ($op === 'submit') {
 } elseif ($reply == 1 || $send == 1 || $send2 == 1 || $sendmod == 1) {
     if ($reply == 1) {
         /** @var PmMessageHandler $pmHandler */
-        $pmHandler = xoops_getModuleHandler('message', 'pm');
+        /** @var Xmf\Module\Helper $moduleHelper */
+        $pmHandler = $moduleHelper->getHandler('message');
         $pm         = $pmHandler->get($msg_id);
         if ($pm->getVar('to_userid') == $GLOBALS['xoopsUser']->getVar('uid')) {
             $pm_uname = XoopsUser::getUnameFromId($pm->getVar('from_userid'));
@@ -116,6 +121,7 @@ if ($op === 'submit') {
     $GLOBALS['xoopsTpl'] = new XoopsTpl();
     include_once $GLOBALS['xoops']->path('class/xoopsformloader.php');
     $pmform = new XoopsForm('', 'pmform', 'pmlite.php', 'post', true);
+    $message = '';
 
     if ($reply == 1) {
         $subject = $pm->getVar('subject', 'E');

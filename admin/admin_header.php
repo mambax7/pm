@@ -1,4 +1,9 @@
 <?php
+
+use Xmf\Language;
+use Xmf\Module\Admin;
+use Xmf\Module\Helper;
+
 /**
  * Private message
  *
@@ -16,35 +21,35 @@
  * @author              Taiwen Jiang <phppp@users.sourceforge.net>
  */
 
-use Xmf\Request;
-
 $path = dirname(dirname(dirname(__DIR__)));
 include_once $path . '/mainfile.php';
 include_once $path . '/include/cp_functions.php';
 require_once $path . '/include/cp_header.php';
-include_once $path . '/class/xoopsformloader.php';
 
 global $xoopsModule;
 
-$moduleDirName = $GLOBALS['xoopsModule']->getVar('dirname');
+//$moduleDirName = $GLOBALS['xoopsModule']->getVar('dirname');
+$moduleDirName = basename(dirname(__DIR__));
+/** @var Xmf\Module\Helper $moduleHelper */
+$moduleHelper  = Helper::getHelper($moduleDirName);
 
 //if functions.php file exist
 //require_once dirname(__DIR__) . '/include/functions.php';
 
-// Load language files
-xoops_loadLanguage('admin', $moduleDirName);
-xoops_loadLanguage('modinfo', $moduleDirName);
-xoops_loadLanguage('main', $moduleDirName);
+$moduleHelper->loadLanguage('admin');
+$moduleHelper->loadLanguage('modinfo');
+$moduleHelper->loadLanguage('main');
 
-$pathIcon16 = \Xmf\Module\Admin::iconUrl('', 16);
-$pathIcon32 = \Xmf\Module\Admin::iconUrl('', 32);
-$pathModuleAdmin = $xoopsModule->getInfo('dirmoduleadmin');
-include_once $GLOBALS['xoops']->path($pathModuleAdmin . '/moduleadmin.php');
 
-if ($xoopsUser) {
-    /** @var XoopsGroupPermHandler $modulepermHandler*/
-    $modulepermHandler = xoops_getHandler('groupperm');
-    if (!$modulepermHandler->checkRight('module_admin', $xoopsModule->getVar('mid'), $xoopsUser->getGroups())) {
+$pathIcon16      = Admin::iconUrl('', 16);
+$pathIcon32      = Admin::iconUrl('', 32);
+
+//include_once $GLOBALS['xoops']->path($pathModuleAdmin . '/moduleadmin.php');
+
+if ($GLOBALS['xoopsUser']) {
+    /** @var XoopsGroupPermHandler $groupPermHandler */
+    $groupPermHandler = xoops_getHandler('groupperm');
+    if (!$groupPermHandler->checkRight('module_admin', $xoopsModule->getVar('mid'), $GLOBALS['xoopsUser']->getGroups())) {
         redirect_header(XOOPS_URL, 1, _NOPERM);
     }
 } else {
@@ -60,5 +65,5 @@ if (!isset($GLOBALS['xoopsTpl']) || !is_object($GLOBALS['xoopsTpl'])) {
     include_once XOOPS_ROOT_PATH . '/class/template.php';
     $GLOBALS['xoopsTpl'] = new XoopsTpl();
 }
-
-$adminObject = \Xmf\Module\Admin::getInstance();
+/** @var Xmf\Module\Admin $adminObject */
+$adminObject = Admin::getInstance();

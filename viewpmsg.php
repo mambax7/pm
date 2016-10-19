@@ -21,6 +21,8 @@ use Xmf\Request;
 
 include_once dirname(dirname(__DIR__)) . '/mainfile.php';
 
+include_once __DIR__ . '/header.php';
+
 if (!is_object($GLOBALS['xoopsUser'])) {
     redirect_header(XOOPS_URL, 3, _NOPERM);
 }
@@ -33,7 +35,8 @@ $_REQUEST['op']    = in_array(Request::getCmd('op', ''), $valid_op_requests) ? R
 
 $start      = Request::getInt('start', 0, 'GET');
 /** @var PmMessageHandler $pmHandler */
-$pmHandler = xoops_getModuleHandler('message');
+/** @var Xmf\Module\Helper $moduleHelper */
+$pmHandler = $moduleHelper->getHandler('message');
 
 $temp = Request::getString('delete_messages', null, 'POST');
 if ('' != Request::getString('delete_messages', '', 'POST') && (isset($_POST['msg_id']) || isset($_POST['msg_ids']))) {
@@ -197,6 +200,7 @@ if ($total_messages > $GLOBALS['xoopsModuleConfig']['perpage']) {
 
 $GLOBALS['xoopsTpl']->assign('display', $total_messages > 0);
 $GLOBALS['xoopsTpl']->assign('anonymous', $xoopsConfig['anonymous']);
+$uids = array();
 if (count($pm_arr) > 0) {
     foreach (array_keys($pm_arr) as $i) {
         if (Request::getCmd('op', '') === 'out') {
@@ -205,6 +209,7 @@ if (count($pm_arr) > 0) {
             $uids[] = $pm_arr[$i]['from_userid'];
         }
     }
+    /** @var XoopsMemberHandler $memberHandler */
     $memberHandler = xoops_getHandler('member');
     $senders        = $memberHandler->getUserList(new Criteria('uid', '(' . implode(', ', array_unique($uids)) . ')', 'IN'));
     foreach (array_keys($pm_arr) as $i) {

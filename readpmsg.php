@@ -20,6 +20,7 @@
 use Xmf\Request;
 
 include_once dirname(dirname(__DIR__)) . '/mainfile.php';
+include_once __DIR__ . '/header.php';
 
 if (!is_object($GLOBALS['xoopsUser'])) {
     redirect_header(XOOPS_URL, 3, _NOPERM);
@@ -28,15 +29,22 @@ $valid_op_requests = array('out', 'save', 'in');
 $_REQUEST['op']    = in_array(Request::getCmd('op', ''), $valid_op_requests) ? Request::getCmd('op', '') : 'in';
 $msg_id            = Request::getInt('msg_id', 0);
 /** @var PmMessageHandler $pmHandler */
-$pmHandler        = xoops_getModuleHandler('message');
+/** @var Xmf\Module\Helper $moduleHelper */
+$pmHandler        = $moduleHelper->getHandler('message');
 $pm                = null;
 if ($msg_id > 0) {
     $pm = $pmHandler->get($msg_id);
 }
 
+//if (is_object($pm) && ($pm->getVar('from_userid') != $GLOBALS['xoopsUser']->getVar('uid')) && ($pm->getVar('to_userid') != $GLOBALS['xoopsUser']->getVar('uid'))) {
+//    redirect_header(XOOPS_URL . '/modules/' . $GLOBALS['xoopsModule']->getVar('dirname', 'n') . '/index.php', 2, _NOPERM);
+//}
+
 if (is_object($pm) && ($pm->getVar('from_userid') != $GLOBALS['xoopsUser']->getVar('uid')) && ($pm->getVar('to_userid') != $GLOBALS['xoopsUser']->getVar('uid'))) {
-    redirect_header(XOOPS_URL . '/modules/' . $GLOBALS['xoopsModule']->getVar('dirname', 'n') . '/index.php', 2, _NOPERM);
+    $moduleHelper->redirect('/index.php', 2, _NOPERM);
 }
+
+$res1 = $res2 = '';
 
 if (is_object($pm) && !empty(Request::getString('action', '', 'POST'))) {
     if (!$GLOBALS['xoopsSecurity']->check()) {
@@ -46,7 +54,7 @@ if (is_object($pm) && !empty(Request::getString('action', '', 'POST'))) {
     $res = false;
     if (!empty(Request::getString('email_message', '', 'POST'))) {
         $res = $pmHandler->sendEmail($pm, $GLOBALS['xoopsUser']);
-    } elseif (!empty(Request::getString('move_message', '', 'POST')) && Request::getCmd('op', '') !== 'save' && !$GLOBALS['xoopsUser']->isAdmin() && $pmHandler->getSavecount() >= $GLOBALS['xoopsModuleConfig']['max_save']) {
+    } elseif (!empty(Request::getString('move_message', '', 'POST')) && Request::getCmd('op', '') !== 'save' && !$moduleHelper->isUserAdmin() && $pmHandler->getSavecount() >= $moduleHelper->getConfig('max_save')) {
         $res_message = sprintf(_PM_SAVED_PART, $GLOBALS['xoopsModuleConfig']['max_save'], 0);
     } else {
         switch (Request::getCmd('op', '')) {
@@ -129,7 +137,7 @@ if (!is_object($pm)) {
 }
 
 include_once $GLOBALS['xoops']->path('class/xoopsformloader.php');
-
+$message = '';
 $pmform = new XoopsForm('', 'pmform', 'readpmsg.php', 'post', true);
 if (is_object($pm) && !empty($pm)) {
     if ($pm->getVar('from_userid') != $GLOBALS['xoopsUser']->getVar('uid')) {
@@ -152,7 +160,7 @@ if (is_object($pm) && !empty($pm)) {
     }
     if (!is_object($poster)) {
         $GLOBALS['xoopsTpl']->assign('poster', false);
-        $GLOBALS['xoopsTpl']->assign('anonymous', $xoopsConfig['anonymous']);
+        $GLOBALS['xoopsTpl']->assign('anonymous', $GLOBALS['xoopsConfig']['anonymous']);
     } else {
         $GLOBALS['xoopsTpl']->assign('poster', $poster);
     }

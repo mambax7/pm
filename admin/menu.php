@@ -1,4 +1,7 @@
 <?php
+
+use Xmf\Module\Admin;
+
 /**
  * Private message
  *
@@ -18,28 +21,14 @@
 
 // defined('XOOPS_ROOT_PATH') || exit('XOOPS root path not defined');
 
-$path = dirname(dirname(dirname(__DIR__)));
-include_once $path . '/mainfile.php';
+require_once dirname(dirname(dirname(__DIR__))) . '/mainfile.php';
 
-$pathIcon32 = \Xmf\Module\Admin::menuIconPath('');
-
-$moduleDirName         = basename(dirname(__DIR__));
-/** @var XoopsModuleHandler $moduleHandler */
-$moduleHandler  = xoops_getHandler('module');
-$module          = $moduleHandler->getByDirname($moduleDirName);
-$module          = $moduleHandler->getByDirname($moduleDirName);
-$pathModuleAdmin = $module->getInfo('dirmoduleadmin');
-$pathLanguage    = $path . $pathModuleAdmin;
-
-if (!file_exists($fileinc = $pathLanguage . '/language/' . $GLOBALS['xoopsConfig']['language'] . '/' . 'main.php')) {
-    $fileinc = $pathLanguage . '/language/english/main.php';
-}
-
-include_once $fileinc;
+$pathIcon32 = Admin::menuIconPath('');
+$moduleDirName = basename(dirname(__DIR__));
 
 $adminmenu[] = array(
     'title' => _PM_MI_INDEX,
-    'link'  => 'admin/admin.php',
+    'link'  => 'admin/index.php',
     'icon'  => $pathIcon32 . '/home.png'
 );
 
