@@ -28,9 +28,10 @@ if (!is_object($GLOBALS['xoopsUser'])) {
 $valid_op_requests = array('out', 'save', 'in');
 $_REQUEST['op']    = in_array(Request::getCmd('op', ''), $valid_op_requests) ? Request::getCmd('op', '') : 'in';
 $msg_id            = Request::getInt('msg_id', 0);
-/** @var PmMessageHandler $pmHandler */
+/** @var \XoopsModules\Pm\MessageHandler $pmHandler */
 /** @var Xmf\Module\Helper $moduleHelper */
 $pmHandler        = $moduleHelper->getHandler('message');
+/** @var \XoopsModules\Pm\Message $pm */
 $pm                = null;
 if ($msg_id > 0) {
     $pm = $pmHandler->get($msg_id);
@@ -79,7 +80,7 @@ if (is_object($pm) && !empty(Request::getString('action', '', 'POST'))) {
                 }
                 if ($pm->getVar('from_userid') == $GLOBALS['xoopsUser']->getVar('uid')) {
                     if (!empty(Request::getString('delete_message', '', 'POST'))) {
-                        $res2 = $pmHandler->setFromDelete($pm);
+                        $res2 = $pmHandler->setFromdelete($pm);
                         $res2 = $res2 ? $pmHandler->setFromsave($pm, 0) : false;
                     } elseif (!empty(Request::getString('move_message', '', 'POST'))) {
                         $res2 = $pmHandler->setFromsave($pm, 0);
@@ -171,8 +172,11 @@ if (is_object($pm) && !empty($pm)) {
         $pmHandler->setRead($pm);
     }
 
-    $message              = $pm->getValues();
-    $message['msg_time']  = formatTimestamp($pm->getVar('msg_time'));
+    $myts = \MyTextSanitizer::getInstance();
+    $message = $pm->getValues();
+    $message['subject'] = $myts->htmlSpecialChars($message['subject']);
+    $message['msg_text'] = $myts->displayTarea($message['msg_text']);
+    $message['msg_time'] = formatTimestamp($pm->getVar('msg_time'));
     $message['msg_image'] = htmlspecialchars($message['msg_image'], ENT_QUOTES);
 }
 $GLOBALS['xoopsTpl']->assign('message', $message);

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/9.5/phpunit.xsd"
+         bootstrap="tests/bootstrap.php"
+         colors="true"
+         verbose="true">
+    <testsuites>
+        <testsuite name="PM Module Test Suite">
+            <directory>tests</directory>
+        </testsuite>
+    </testsuites>
+    <php>
+        <const name="XOOPS_UNIT_TEST" value="true"/>
+        <const name="XOOPS_ROOT_PATH" value="/path/to/xoops/htdocs"/>
+        <const name="XOOPS_VAR_PATH" value="/path/to/xoops/var"/>
+        <const name="XOOPS_TRUST_PATH" value="/path/to/xoops/trust"/>
+    </php>
+</phpunit>

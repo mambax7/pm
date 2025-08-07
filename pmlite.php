@@ -71,9 +71,10 @@ if ($op === 'submit') {
         echo _PM_PLZTRYAGAIN . '</h4><br>';
         echo "[ <a href='javascript:history.go(-1)'>" . _PM_GOBACK . '</a> ]</div>';
     } elseif ($GLOBALS['xoopsSecurity']->check()) {
-        /** @var PmMessageHandler $pmHandler */
+        /** @var \XoopsModules\Pm\MessageHandler $pmHandler */
         /** @var Xmf\Module\Helper $moduleHelper */
         $pmHandler = $moduleHelper->getHandler('message');
+        /** @var \XoopsModules\Pm\Message $pm */
         $pm         = $pmHandler->create();
         $pm->setVar('msg_time', time());
         $msg_image = Request::getCmd('icon', null, 'POST');
@@ -102,9 +103,10 @@ if ($op === 'submit') {
     }
 } elseif ($reply == 1 || $send == 1 || $send2 == 1 || $sendmod == 1) {
     if ($reply == 1) {
-        /** @var PmMessageHandler $pmHandler */
+        /** @var \XoopsModules\Pm\MessageHandler $pmHandler */
         /** @var Xmf\Module\Helper $moduleHelper */
         $pmHandler = $moduleHelper->getHandler('message');
+        /** @var \XoopsModules\Pm\Message $pm */
         $pm         = $pmHandler->get($msg_id);
         if ($pm->getVar('to_userid') == $GLOBALS['xoopsUser']->getVar('uid')) {
             $pm_uname = XoopsUser::getUnameFromId($pm->getVar('from_userid'));

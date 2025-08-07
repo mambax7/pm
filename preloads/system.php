@@ -35,7 +35,7 @@ class PmSystemPreload extends XoopsPreloadItem
         $moduleDirName = basename(dirname(__DIR__));
         /** @var Xmf\Module\Helper $moduleHelper */
         $moduleHelper  = Xmf\Module\Helper::getHelper($moduleDirName);
-        /** @var PmMessageHandler $pmHandler */
+        /** @var \XoopsModules\Pm\MessageHandler $pmHandler */
         $args[0] = $moduleHelper->getHandler('message');
     }
 }

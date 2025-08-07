@@ -34,7 +34,7 @@ $valid_op_requests = array('out', 'save', 'in');
 $_REQUEST['op']    = in_array(Request::getCmd('op', ''), $valid_op_requests) ? Request::getCmd('op', '') : 'in';
 
 $start      = Request::getInt('start', 0, 'GET');
-/** @var PmMessageHandler $pmHandler */
+/** @var \XoopsModules\Pm\MessageHandler $pmHandler */
 /** @var Xmf\Module\Helper $moduleHelper */
 $pmHandler = $moduleHelper->getHandler('message');
 
@@ -135,28 +135,37 @@ if ('' !== Request::getString('empty_messages', '', 'POST')) {
             $criteria->add(new Criteria('to_userid', $GLOBALS['xoopsUser']->getVar('uid')));
             $criteria->add(new Criteria('to_save', 0));
         }
-        /*
-         * The following method has critical scalability problem !
-         * deleteAll method should be used instead
-         */
-        $pms = $pmHandler->getObjects($criteria);
-        unset($criteria);
-        if (count($pms) > 0) {
-            foreach (array_keys($pms) as $i) {
-                if ($pms[$i]->getVar('to_userid') == $GLOBALS['xoopsUser']->getVar('uid')) {
-                    if (Request::getCmd('op', '', 'POST') === 'save') {
-                        $pmHandler->setTosave($pms[$i], 0);
-                    } elseif (Request::getCmd('op', '', 'POST') === 'in') {
-                        $pmHandler->setTodelete($pms[$i]);
-                    }
-                }
-                if ($pms[$i]->getVar('from_userid') == $GLOBALS['xoopsUser']->getVar('uid')) {
-                    if (Request::getCmd('op', '', 'POST') === 'save') {
-                        $pmHandler->setFromsave($pms[$i], 0);
-                    } elseif (Request::getCmd('op', '', 'POST') === 'out') {
-                        $pmHandler->setFromdelete($pms[$i]);
-                    }
-                }
+        // Improved "Empty" functionality for better performance
+        if (Request::getCmd('op', '', 'POST') === 'save') {
+            // For the savebox, "empty" means "unsave"
+            $crit_to = new CriteriaCompo(new Criteria('to_save', 1));
+            $crit_to->add(new Criteria('to_userid', $GLOBALS['xoopsUser']->getVar('uid')));
+            $pmHandler->updateAll('to_save', 0, $crit_to);
+
+            $crit_from = new CriteriaCompo(new Criteria('from_save', 1));
+            $crit_from->add(new Criteria('from_userid', $GLOBALS['xoopsUser']->getVar('uid')));
+            $pmHandler->updateAll('from_save', 0, $crit_from);
+        } else {
+            // For inbox and outbox, "empty" means "delete"
+            // We'll mark messages as deleted. A cron job or admin action can later remove them.
+            // First, delete messages where the other party has already deleted their copy.
+            $crit_delete = new CriteriaCompo();
+            if (Request::getCmd('op', '', 'POST') === 'out') { // Emptying outbox
+                $crit_delete->add(new Criteria('from_userid', $GLOBALS['xoopsUser']->getVar('uid')));
+                $crit_delete->add(new Criteria('to_delete', 1));
+            } else { // Emptying inbox
+                $crit_delete->add(new Criteria('to_userid', $GLOBALS['xoopsUser']->getVar('uid')));
+                $crit_delete->add(new Criteria('from_delete', 1));
+            }
+            $pmHandler->deleteAll($crit_delete, true);
+
+            // Now, for the remaining messages, just mark them as deleted.
+            if (Request::getCmd('op', '', 'POST') === 'out') { // Emptying outbox
+                $criteria->add(new Criteria('from_delete', 0)); // only update those not already marked
+                $pmHandler->updateAll('from_delete', 1, $criteria);
+            } else { // Emptying inbox
+                $criteria->add(new Criteria('to_delete', 0)); // only update those not already marked
+                $pmHandler->updateAll('to_delete', 1, $criteria);
             }
         }
         $GLOBALS['xoopsTpl']->assign('msg', _PM_EMPTIED);
@@ -212,8 +221,10 @@ if (count($pm_arr) > 0) {
     /** @var XoopsMemberHandler $memberHandler */
     $memberHandler = xoops_getHandler('member');
     $senders        = $memberHandler->getUserList(new Criteria('uid', '(' . implode(', ', array_unique($uids)) . ')', 'IN'));
+    $myts = \MyTextSanitizer::getInstance();
     foreach (array_keys($pm_arr) as $i) {
         $message              = $pm_arr[$i];
+        $message['subject']   = $myts->htmlSpecialChars($message['subject']);
         $message['msg_image'] = htmlspecialchars($message['msg_image'], ENT_QUOTES);
         $message['msg_time']  = formatTimestamp($message['msg_time']);
         if (Request::getCmd('op', '') === 'out') {

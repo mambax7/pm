@@ -1,0 +1,29 @@
+{
+    "name": "xoops/pm",
+    "description": "XOOPS Private Messaging Module",
+    "type": "xoops-module",
+    "license": "GPL-2.0-or-later",
+    "authors": [
+        {
+            "name": "Jan Pedersen",
+            "email": "author-email",
+            "role": "Developer"
+        },
+        {
+            "name": "Taiwen Jiang",
+            "email": "phppp@users.sourceforge.net",
+            "role": "Developer"
+        }
+    ],
+    "require": {
+        "php": ">=7.4"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^9.5"
+    },
+    "autoload": {
+        "psr-4": {
+            "XoopsModules\\Pm\\": "class/"
+        }
+    }
+}
